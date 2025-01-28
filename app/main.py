@@ -6,7 +6,7 @@ from psycopg.rows import dict_row
 app = FastAPI()
 
 DB_HOST = os.getenv("db_host")
-DB_PORT = os.getenv("db_port")
+DB_PORT = os.getenv("db_port","5432")
 DB_NAME = os.getenv("db_name")
 DB_USER = os.getenv("db_user")
 DB_PASSWORD = os.getenv("db_password")
