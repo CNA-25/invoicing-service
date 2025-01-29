@@ -2,7 +2,7 @@
 
 ### Databas /shipments
 
-- shipment_id - INTEGER
+- shipment_id - SERIAL
 - user_id - INTEGER
 - timestamp - TIMESTAMP (without time zone)
 - order_price - NUMERIC
