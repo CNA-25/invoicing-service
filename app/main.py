@@ -30,7 +30,6 @@ def read_shipments():
 async def create_shipments(request: Request):
     try:
         data = await request.json()
-        shipment_id = data.get("shipment_id")
         user_id = data.get("user_id")
         timestamp = data.get("timestamp")
         order_price = data.get("order_price")
@@ -41,20 +40,20 @@ async def create_shipments(request: Request):
         product_price = data.get("product_price")
         product_name = data.get("product_name")
 
-        if not all([shipment_id, user_id, timestamp, order_price, order_id, order_item_id, product_id, amount, product_price, product_name]):
+        if not all([user_id, timestamp, order_price, order_id, order_item_id, product_id, amount, product_price, product_name]):
             raise HTTPException(status_code=400, detail="Missing required fields")
         with psycopg.connect(conn_str) as conn:
                 with conn.cursor() as cur:
                     cur.execute(
                         """
                         INSERT INTO shipments (
-                            shipment_id, user_id, timestamp, order_price, order_id,
+                            user_id, timestamp, order_price, order_id,
                             order_item_id, product_id, amount, product_price, product_name
                         )
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s)
                         """,
                         (
-                            shipment_id,
+                            
                             user_id,
                             timestamp,
                             order_price,
