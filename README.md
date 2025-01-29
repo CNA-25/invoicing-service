@@ -11,4 +11,4 @@
 - product_id - INTEGER
 - amount - INTEGER
 - product_price - NUMERIC
-- product_price - TEXT
+- product_name - TEXT
