@@ -2,15 +2,13 @@
 
 ## Databas /orders
 
-### Orders table:
-
+Orders table:
 order_id - INTEGER
 user_id - INTEGER
 timestamp - TIMESTAMP (without time zone)
 order_price - NUMERIC
 
-### Order_items table:
-
+Order_items table:
 order_item_id - INTEGER
 order_id - INTEGER
 product_id - INTEGER
