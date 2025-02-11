@@ -1,14 +1,20 @@
 # invoicing-service
 
-### Databas /shipments
+## Databas /orders
 
-- shipment_id - SERIAL
-- user_id - INTEGER
-- timestamp - TIMESTAMP (without time zone)
-- order_price - NUMERIC
-- order_id - INTEGER
-- order_item_id - INTEGER
-- product_id - INTEGER
-- amount - INTEGER
-- product_price - NUMERIC
-- product_name - TEXT
+### Orders table:
+
+order_id - INTEGER
+user_id - INTEGER
+timestamp - TIMESTAMP (without time zone)
+order_price - NUMERIC
+
+### Order_items table:
+
+order_item_id - INTEGER
+order_id - INTEGER
+product_id - INTEGER
+amout - INTEGER
+product_price - NUMERIC
+product_name - TEXT
+total_price - NUMERIC
