@@ -80,9 +80,9 @@ def create_order(order: Order):
 
                 for item in order.order_items:
                     cur.execute("""
-                        INSERT INTO order_items (order_item_id, product_id, amount, product_price, product_name, invoice_id)
+                        INSERT INTO order_items (order_item_id, product_id, amount, product_price, product_name, total_price, invoice_id)
                         VALUES (%s, %s, %s, %s, %s, %s, %s)
-                    """, (item.order_item_id, item.product_id, item.amount, item.product_price, item.product_name, invoice_id))
+                    """, (item.order_item_id, item.product_id, item.amount, item.product_price, item.product_name, item.product_price * item.amount, invoice_id))
                 
                 conn.commit()
 
