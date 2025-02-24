@@ -7,6 +7,8 @@ from typing import List
 from weasyprint import HTML
 import io
 from fastapi.responses import StreamingResponse
+import datetime
+
 
 
 app = FastAPI()
@@ -69,6 +71,10 @@ def generate_invoice_pdf(invoice_id: int):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
+    raw_timestamp = str(timestamp_db)
+    parsed_timestamp = datetime.datetime.fromisoformat(raw_timestamp)
+    formatted_timestamp = parsed_timestamp.strftime("%Y-%m-%d %H:%M")
+
     html_content = f"""
     <!DOCTYPE html>
     <html>
@@ -139,7 +145,7 @@ def generate_invoice_pdf(invoice_id: int):
                     </td>
                     <td>
                       Invoice #: {invoice_id_db}<br />
-                      Created: {timestamp_db}<br />
+                      {formatted_timestamp}<br />
                     </td>
                   </tr>
                 </table>
