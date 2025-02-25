@@ -11,7 +11,7 @@
 ### Order_items table:
 - order_item_id - INTEGER
 - order_id - INTEGER
-- product_id - INTEGER
+- product_id - VARCHAR
 - amout - INTEGER
 - product_price - NUMERIC
 - product_name - TEXT
