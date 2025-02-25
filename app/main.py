@@ -25,7 +25,7 @@ conn_str = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 class OrderItem(BaseModel):
     order_item_id: int
-    product_id: int
+    product_id: str
     amount: int
     product_price: float
     product_name: str
