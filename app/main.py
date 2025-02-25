@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Depends
 from pydantic import BaseModel
 import os
 import psycopg
@@ -8,6 +8,7 @@ from weasyprint import HTML
 import io
 from fastapi.responses import StreamingResponse
 import datetime
+from middleware import verify_token
 
 
 
@@ -41,7 +42,7 @@ class Order(BaseModel):
 def read_root():
     return { "Hello": "Rahti2", "v": "0.4" }
 
-@app.get("/invoices/{invoice_id}/pdf")
+@app.get("/invoices/{invoice_id}/pdf", dependencies=[Depends(verify_token)])
 def generate_invoice_pdf(invoice_id: int):
     try:
         with psycopg.connect(conn_str) as conn:
