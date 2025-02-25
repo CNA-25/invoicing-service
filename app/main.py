@@ -181,14 +181,14 @@ def generate_invoice_pdf(invoice_id: int):
         html_content += f"""
             <tr class="{row_class}">
               <td>{amount} x {product_name} (ID: {product_id})</td>
-              <td>${total_price:.2f}</td>
+              <td>{total_price:.2f}</td>
             </tr>
         """
 
     html_content += f"""
             <tr class="total">
               <td></td>
-              <td>Total: ${order_price_db:.2f}</td>
+              <td>Total: {order_price_db:.2f}</td>
             </tr>
           </table>
         </div>
