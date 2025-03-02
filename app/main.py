@@ -233,7 +233,7 @@ def read_orders():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
         
-@app.post("/orders")
+@app.post("/orders", dependencies=[Depends(verify_token)])
 def create_order(order: Order):
     try:
         with psycopg.connect(conn_str, row_factory=dict_row) as conn:
