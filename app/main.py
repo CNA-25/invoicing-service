@@ -10,8 +10,6 @@ from fastapi.responses import StreamingResponse
 import datetime
 from app.middleware import verify_token
 
-
-
 app = FastAPI()
 
 DB_HOST = os.getenv("db_host")
@@ -19,6 +17,9 @@ DB_PORT = os.getenv("db_port")
 DB_NAME = os.getenv("db_name")
 DB_USER = os.getenv("db_user")
 DB_PASSWORD = os.getenv("db_password")
+EMAIL_URL = os.getenv("email_url")
+INVOICE_URL = os.getenv("invoice_url")
+
 
 conn_str = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
