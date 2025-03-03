@@ -134,19 +134,11 @@ def generate_invoice_pdf(invoice_id: int) -> bytes:
     user_data = fetch_user(user_id_db)
     invoice_user_name = user_data["name"]
     invoice_user_email = user_data["email"]
-<<<<<<< HEAD
     #address = user_data.get("address", {})
     #invoice_user_street = address.get("street", "N/A")
     #invoice_user_zipcode = address.get("zipcode", "N/A")
     #invoice_user_city = address.get("city", "N/A")
     #invoice_user_country = address.get("country", "N/A")
-=======
-    address = user_data.get("address", {})
-    invoice_user_street = address.get("street", "N/A")
-    invoice_user_zipcode = address.get("zipcode", "N/A")
-    invoice_user_city = address.get("city", "N/A")
-    invoice_user_country = address.get("country", "N/A")
->>>>>>> 536fc38fd061b6621f840ee9392050fcd99dfefb
 
     html_content = f"""
     <!DOCTYPE html>
@@ -235,11 +227,7 @@ def generate_invoice_pdf(invoice_id: int) -> bytes:
                     <td>
                       {invoice_user_name}<br />
                       {invoice_user_email}<br />
-<<<<<<< HEAD
                       {{SHIPPING_ADDRESS}}
-=======
-                      {invoice_user_street}, {invoice_user_zipcode}, {invoice_user_city}, {invoice_user_country}
->>>>>>> 536fc38fd061b6621f840ee9392050fcd99dfefb
                     </td>
                   </tr>
                 </table>
