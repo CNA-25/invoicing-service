@@ -3,3 +3,4 @@ pydantic
 psycopg[binary]==3
 weasyprint
 PyJWT
+requests
