@@ -5,7 +5,7 @@ from jwt import ExpiredSignatureError, InvalidTokenError
 import os
 
 SECRET = os.getenv("secret")
-ALGORITHM = "HS256"
+ALGORITHM = os.getenv("algorithm")
 
 security = HTTPBearer()
 

@@ -9,6 +9,9 @@ import io
 from fastapi.responses import StreamingResponse
 import datetime
 from app.middleware import verify_token
+import requests
+import base64
+
 
 app = FastAPI()
 
@@ -19,10 +22,46 @@ DB_USER = os.getenv("db_user")
 DB_PASSWORD = os.getenv("db_password")
 EMAIL_URL = os.getenv("email_url")
 INVOICE_URL = os.getenv("invoice_url")
-
+USER_URL = os.getenv("user_url")
+USER_MAIL = os.getenv("user_mail")
+USER_PASS = os.getenv("user_pass")
+USER_JWT = None
 
 conn_str = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
+@app.on_event("startup")
+def on_startup():
+    login_user()
+
+def login_user():
+    global USER_JWT
+    try:
+        resp = requests.post(
+            f"{USER_URL}/login",
+            json={"email": USER_MAIL, "password": USER_PASS},
+            timeout=5
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        USER_JWT = f"Bearer {data['access_token']}"
+        print("Login success")
+    except requests.RequestException as exc:
+        print(f"Login failed: {exc}")
+        USER_JWT = None
+
+def fetch_user(user_id: int):
+    global USER_JWT
+    if not USER_JWT:
+        login_user()
+    headers = {"Authorization": USER_JWT}
+    resp = requests.get(f"{USER_URL}/users/{user_id}", headers=headers)
+    if resp.status_code == 401:
+        login_user()
+        headers["Authorization"] = USER_JWT
+        resp = requests.get(f"{USER_URL}/users/{user_id}", headers=headers)
+    resp.raise_for_status()
+    data = resp.json()
+    return data.get("user_data") 
 
 class OrderItem(BaseModel):
     order_item_id: int
@@ -38,13 +77,28 @@ class Order(BaseModel):
     order_id: int
     order_items: List[OrderItem]
 
-
 @app.get("/")
 def read_root():
     return { "Hello": "Rahti2", "v": "0.4" }
 
-@app.get("/invoices/{invoice_id}/pdf", dependencies=[Depends(verify_token)])
-def generate_invoice_pdf(invoice_id: int):
+def send_invoice_pdf(invoice_id, order):
+    invoice_pdf_bytes = generate_invoice_pdf(invoice_id)
+    pdf_base64 = base64.b64encode(invoice_pdf_bytes).decode("utf-8")
+    user_data = fetch_user(order.user_id)
+    user_email = user_data.get("email", "test@mail.com")
+
+    email_payload = {
+        "to": user_email,
+        "subject": f"Beercraft invoice #{invoice_id}",
+        "body": f"Hi {user_data.get('name', 'customer')}, thanks for your purchase from Beercraft.",
+        "pdfBase64": pdf_base64
+    }
+
+    headers = {"Content-Type": "application/json"}
+    resp = requests.post(f"{EMAIL_URL}/invoicing", json=email_payload, headers=headers, timeout=5)
+    resp.raise_for_status()
+
+def generate_invoice_pdf(invoice_id: int) -> bytes:
     try:
         with psycopg.connect(conn_str) as conn:
             with conn.cursor() as cur:
@@ -76,6 +130,15 @@ def generate_invoice_pdf(invoice_id: int):
     raw_timestamp = str(timestamp_db)
     parsed_timestamp = datetime.datetime.fromisoformat(raw_timestamp)
     formatted_timestamp = parsed_timestamp.strftime("%Y-%m-%d %H:%M")
+    
+    user_data = fetch_user(user_id_db)
+    invoice_user_name = user_data["name"]
+    invoice_user_email = user_data["email"]
+    #address = user_data.get("address", {})
+    #invoice_user_street = address.get("street", "N/A")
+    #invoice_user_zipcode = address.get("zipcode", "N/A")
+    #invoice_user_city = address.get("city", "N/A")
+    #invoice_user_country = address.get("country", "N/A")
 
     html_content = f"""
     <!DOCTYPE html>
@@ -162,9 +225,9 @@ def generate_invoice_pdf(invoice_id: int):
                       Address
                     </td>
                     <td>
-                      {{USER_NAME}}<br />
-                      {{USER_ADDRESS}}<br />
-                      {{USER_EMAIL}}
+                      {invoice_user_name}<br />
+                      {invoice_user_email}<br />
+                      {{SHIPPING_ADDRESS}}
                     </td>
                   </tr>
                 </table>
@@ -177,7 +240,7 @@ def generate_invoice_pdf(invoice_id: int):
     """
 
     for item in order_items:
-        product_id, amount, product_price, product_name, total_price = item
+        product_id, amount, product_name, total_price = item
         row_class = "item"
         html_content += f"""
             <tr class="{row_class}">
@@ -198,11 +261,7 @@ def generate_invoice_pdf(invoice_id: int):
     """
     pdf_bytes = HTML(string=html_content).write_pdf()
 
-    return StreamingResponse(
-        io.BytesIO(pdf_bytes),
-        media_type="application/pdf",
-        headers={"Content-Disposition": f"inline; filename=invoice_{invoice_id_db}.pdf"}
-    )
+    return pdf_bytes
 
 @app.get("/orders")
 def read_orders():
@@ -253,6 +312,8 @@ def create_order(order: Order):
                     """, (item.order_item_id, item.product_id, item.amount, item.product_price, item.product_name, item.product_price * item.amount, invoice_id))
                 
                 conn.commit()
+
+                send_invoice_pdf(invoice_id, order)
 
                 return {"message": "Order created successfully", "invoice_id": invoice_id}
 
