@@ -12,7 +12,6 @@ from app.middleware import verify_token
 import requests
 import base64
 
-
 app = FastAPI()
 
 DB_HOST = os.getenv("db_host")
