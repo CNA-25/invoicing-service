@@ -74,6 +74,7 @@ class Order(BaseModel):
     timestamp: str
     order_price: float
     order_id: int
+    shipping_address: str
     order_items: List[OrderItem]
 
 @app.get("/")
@@ -133,6 +134,7 @@ def generate_invoice_pdf(invoice_id: int) -> bytes:
     user_data = fetch_user(user_id_db)
     invoice_user_name = user_data["name"]
     invoice_user_email = user_data["email"]
+    invoice_shipping_address = invoice_row[5]
     #address = user_data.get("address", {})
     #invoice_user_street = address.get("street", "N/A")
     #invoice_user_zipcode = address.get("zipcode", "N/A")
@@ -226,7 +228,7 @@ def generate_invoice_pdf(invoice_id: int) -> bytes:
                     <td>
                       {invoice_user_name}<br />
                       {invoice_user_email}<br />
-                      {{SHIPPING_ADDRESS}}
+                      {invoice_shipping_address}
                     </td>
                   </tr>
                 </table>
@@ -273,6 +275,7 @@ def read_orders():
                         o.user_id, 
                         o.timestamp, 
                         o.order_price,
+                        o.shipping_address,
                         COALESCE(jsonb_agg(
                             jsonb_build_object(
                                 'order_item_id', oi.order_item_id,
@@ -297,10 +300,10 @@ def create_order(order: Order):
         with psycopg.connect(conn_str, row_factory=dict_row) as conn:
             with conn.cursor() as cur:
                 cur.execute("""
-                    INSERT INTO orders (user_id, timestamp, order_price, order_id)
-                    VALUES (%s, %s, %s, %s)
+                    INSERT INTO orders (user_id, timestamp, order_price, order_id, shipping_address)
+                    VALUES (%s, %s, %s, %s, %s)
                     RETURNING invoice_id
-                """, (order.user_id, order.timestamp, order.order_price, order.order_id))
+                """, (order.user_id, order.timestamp, order.order_price, order.order_id, order.shipping_address))
                 
                 invoice_id = cur.fetchone()["invoice_id"]
 
