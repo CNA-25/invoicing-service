@@ -86,6 +86,10 @@ def send_invoice_pdf(invoice_id, order):
     pdf_base64 = base64.b64encode(invoice_pdf_bytes).decode("utf-8")
     user_data = fetch_user(order.user_id)
     user_email = user_data.get("email", "test@mail.com")
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": USER_JWT
+    }
 
     email_payload = {
         "to": user_email,
@@ -93,8 +97,6 @@ def send_invoice_pdf(invoice_id, order):
         "body": f"Hi {user_data.get('name', 'customer')}, thanks for your purchase from Beercraft.",
         "pdfBase64": f"data:application/pdf;base64,{pdf_base64}"
     }
-
-    headers = {"Content-Type": "application/json"}
     resp = requests.post(f"{EMAIL_URL}/invoicing", json=email_payload, headers=headers, timeout=5)
     resp.raise_for_status()
 
