@@ -239,7 +239,7 @@ def generate_invoice_pdf(invoice_id: int) -> bytes:
     """
 
     for item in order_items:
-        product_id, amount, product_name, total_price = item
+        product_id, amount, product_price, product_name, total_price = item
         row_class = "item"
         html_content += f"""
             <tr class="{row_class}">
