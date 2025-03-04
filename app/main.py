@@ -82,6 +82,7 @@ def read_root():
     return { "Hello": "Rahti2", "v": "0.4" }
 
 def send_invoice_pdf(invoice_id, order):
+    login_user()
     invoice_pdf_bytes = generate_invoice_pdf(invoice_id)
     pdf_base64 = base64.b64encode(invoice_pdf_bytes).decode("utf-8")
     user_data = fetch_user(order.user_id)
