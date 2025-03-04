@@ -107,7 +107,8 @@ def generate_invoice_pdf(invoice_id: int) -> bytes:
                         o.invoice_id, 
                         o.user_id, 
                         o.timestamp, 
-                        o.order_price
+                        o.order_price,
+                        o.shipping_address
                     FROM orders o
                     WHERE o.invoice_id = %s
                 """, (invoice_id,))
@@ -115,7 +116,7 @@ def generate_invoice_pdf(invoice_id: int) -> bytes:
                 if not invoice_row:
                     raise HTTPException(status_code=404, detail="Invoice not found")
                 
-                (invoice_id_db, user_id_db, timestamp_db, order_price_db) = invoice_row
+                (invoice_id_db, user_id_db, timestamp_db, order_price_db, invoice_shipping_address) = invoice_row
 
                 cur.execute("""
                     SELECT product_id, amount, product_price, product_name, total_price
@@ -134,7 +135,7 @@ def generate_invoice_pdf(invoice_id: int) -> bytes:
     user_data = fetch_user(user_id_db)
     invoice_user_name = user_data["name"]
     invoice_user_email = user_data["email"]
-    invoice_shipping_address = invoice_row[5]
+    invoice_shipping_address = invoice_row[4]
     #address = user_data.get("address", {})
     #invoice_user_street = address.get("street", "N/A")
     #invoice_user_zipcode = address.get("zipcode", "N/A")
