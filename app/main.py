@@ -90,7 +90,7 @@ def send_invoice_pdf(invoice_id, order):
         "to": user_email,
         "subject": f"Beercraft invoice #{invoice_id}",
         "body": f"Hi {user_data.get('name', 'customer')}, thanks for your purchase from Beercraft.",
-        "pdfBase64": pdf_base64
+        "pdfBase64": f"data:application/pdf;base64, {pdf_base64}"
     }
 
     headers = {"Content-Type": "application/json"}
