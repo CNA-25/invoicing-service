@@ -139,11 +139,7 @@ def generate_invoice_pdf(invoice_id: int) -> bytes:
     invoice_user_name = user_data["name"]
     invoice_user_email = user_data["email"]
     invoice_shipping_address = invoice_row[4]
-    #address = user_data.get("address", {})
-    #invoice_user_street = address.get("street", "N/A")
-    #invoice_user_zipcode = address.get("zipcode", "N/A")
-    #invoice_user_city = address.get("city", "N/A")
-    #invoice_user_country = address.get("country", "N/A")
+
 
     html_content = f"""
     <!DOCTYPE html>
@@ -227,7 +223,7 @@ def generate_invoice_pdf(invoice_id: int) -> bytes:
                   <tr>
                     <td>
                       Beercraft<br />
-                      Address
+                      Jan-Magnus Janssons plats 1, 00560, Helsingfors, Finland
                     </td>
                     <td>
                       {invoice_user_name}<br />
