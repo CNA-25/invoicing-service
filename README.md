@@ -7,6 +7,7 @@
 - user_id - INTEGER
 - timestamp - TIMESTAMP (without time zone)
 - order_price - NUMERIC
+- shipping_address - TEXT
 
 ### Order_items table:
 - order_item_id - INTEGER
