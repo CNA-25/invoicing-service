@@ -263,36 +263,6 @@ def generate_invoice_pdf(invoice_id: int) -> bytes:
     pdf_bytes = HTML(string=html_content).write_pdf()
 
     return pdf_bytes
-
-@app.get("/orders")
-def read_orders():
-    try:
-        with psycopg.connect(conn_str, row_factory=dict_row) as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                    SELECT 
-                        o.invoice_id, 
-                        o.user_id, 
-                        o.timestamp, 
-                        o.order_price,
-                        o.shipping_address,
-                        COALESCE(jsonb_agg(
-                            jsonb_build_object(
-                                'order_item_id', oi.order_item_id,
-                                'product_id', oi.product_id,
-                                'amount', oi.amount,
-                                'product_price', oi.product_price,
-                                'product_name', oi.product_name,
-                                'total_price', oi.total_price
-                            )
-                        ) FILTER (WHERE oi.order_item_id IS NOT NULL), '[]'::jsonb) AS order_items
-                    FROM orders o
-                    LEFT JOIN order_items oi ON o.invoice_id = oi.invoice_id
-                    GROUP BY o.invoice_id
-                """)
-                return cur.fetchall()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
         
 @app.post("/orders", dependencies=[Depends(verify_token)])
 def create_order(order: Order):
